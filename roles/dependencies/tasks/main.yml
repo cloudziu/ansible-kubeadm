@@ -1,45 +1,57 @@
 ---
 #This role inits and check server dependencies for kubernetes
 
+- name: Check VCPU
+  assert:
+    that:
+      - ansible_processor_vcpus >= 2
+    fail_msg: "Not enouth VCPU"
+    success_msg: "VCPU OK"
+
 - name: Check RAM and CPU dependencies
   assert:
     that:
       - ansible_memtotal_mb >= 2048
-      - ansible_processor_vcpus >= 2
-    fail_msg: "To less memory or vcpus"
-    success_msg: "RAM and VCPU seems fine"
+      
+    fail_msg: "Not enouth memory"
+    success_msg: "RAM OK"
 
-- name: Check swap
-  debug:
-      msg: "Turninf off swap"
+- name: Remove swapfile from /etc/fstab
+  mount:
+    name: "{{ item }}"
+    fstype: swap
+    state: absent
+  with_items:
+    - swap
+    - none
+
+- name: Disable swap
+  command: swapoff -a
   when: ansible_swaptotal_mb > 0
-  
+
 - name: Install legacy iptables
   package:
     name: "{{ item }}"
     state: present
+  ignore_errors: True
   with_items:
     - iptables 
     - arptables
     - ebtables
-  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
 
 - name: Use legacy iptables Ubuntu/Debian
   alternatives:
       name: "{{ item.name }}"
       path: "{{ item.path }}"
   when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  ignore_errors: True
   with_items:      
     - { name: iptables, path: /usr/sbin/iptables-legacy}
     - { name: ip6tables, path: /usr/sbin/ip6tables-legacy}
     - { name: arptables, path: /usr/sbin/arptables-legacy}
     - { name: ebtables, path: /usr/sbin/ebtables-legacy}
 
-- name: Use legacy iptables Fedora
-  alternatives:
-      name: iptables
-      path: /usr/sbin/iptables-legacy
-  when: ansible_distribution == 'Fedora'
 
-#Check on new maschine 
+
+
 

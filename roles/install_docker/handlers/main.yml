@@ -1,0 +1,6 @@
+---
+# Handlers for docker role
+- name: docker status
+  service: 
+    name: docker
+    state: started

@@ -1,6 +1,8 @@
 ---
-- hosts: localhost
+- hosts: kube
   gather_facts: true
   become: true
   roles:
     - dependencies
+    - install_docker
+
