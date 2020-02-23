@@ -1,0 +1,45 @@
+---
+#This role inits and check server dependencies for kubernetes
+
+- name: Check RAM and CPU dependencies
+  assert:
+    that:
+      - ansible_memtotal_mb >= 2048
+      - ansible_processor_vcpus >= 2
+    fail_msg: "To less memory or vcpus"
+    success_msg: "RAM and VCPU seems fine"
+
+- name: Check swap
+  debug:
+      msg: "Turninf off swap"
+  when: ansible_swaptotal_mb > 0
+  
+- name: Install legacy iptables
+  package:
+    name: "{{ item }}"
+    state: present
+  with_items:
+    - iptables 
+    - arptables
+    - ebtables
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+
+- name: Use legacy iptables Ubuntu/Debian
+  alternatives:
+      name: "{{ item.name }}"
+      path: "{{ item.path }}"
+  when: ansible_distribution == 'Debian' or ansible_distribution == 'Ubuntu'
+  with_items:      
+    - { name: iptables, path: /usr/sbin/iptables-legacy}
+    - { name: ip6tables, path: /usr/sbin/ip6tables-legacy}
+    - { name: arptables, path: /usr/sbin/arptables-legacy}
+    - { name: ebtables, path: /usr/sbin/ebtables-legacy}
+
+- name: Use legacy iptables Fedora
+  alternatives:
+      name: iptables
+      path: /usr/sbin/iptables-legacy
+  when: ansible_distribution == 'Fedora'
+
+#Check on new maschine 
+
