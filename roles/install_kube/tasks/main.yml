@@ -1,13 +1,18 @@
 ---
 # This role  will install kubernetes packets
 
+- name: Add an apt signing key for Kubernetes
+  apt_key:
+    url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+    state: present
+
 - name: Adding apt repository for Kubernetes
   apt_repository:
     repo: deb https://apt.kubernetes.io/ kubernetes-xenial main
     state: present
     filename: kubernetes.list
 
-- name: Create /etc/default/kubelet
+- name: Create file /etc/default/kubelet
   file:
     path: /etc/default/kubelet
     state: touch
@@ -29,3 +34,8 @@
       - kubeadm 
       - kubectl
 
+- name: Restart kubelet
+  service:
+    name: kubelet
+    daemon_reload: yes
+    state: restarted

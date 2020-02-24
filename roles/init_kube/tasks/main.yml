@@ -1,0 +1,37 @@
+---
+# This role init master node
+
+- name: Check if kubeadm has already run
+  stat:
+    path: "/etc/kubernetes/pki/ca.key"
+  register: kubeadm_ca
+
+- name: Initialize the Kubernetes cluster using kubeadm
+  when: not kubeadm_ca.stat.exists
+  shell: |
+    kubeadm init --apiserver-advertise-address="10.1.0.10" 
+                 --apiserver-cert-extra-sans="10.1.0.10"
+                 --node-name master
+                 --pod-network-cidr=10.244.0.0/16
+  run_once: True
+  ignore_errors: True
+
+- name: Create a directory .kube 
+  file:
+    path: /home/vagrant/.kube
+    state: directory
+    mode: '0755'
+
+- name: Copy kubeconfig
+  copy:
+    src: /etc/kubernetes/admin.conf
+    dest: /home/vagrant/.kube/config
+    remote_src: yes
+    owner: vagrant
+    group: vagrant
+    mode: '0774'
+
+- name: Generate join command
+  command: kubeadm token create --print-join-command
+  register: join_command
+

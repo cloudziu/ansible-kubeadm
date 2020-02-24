@@ -33,7 +33,21 @@
     - docker-ce-cli 
     - containerd.io
   notify:
-    - docker status
+    - docker start
+
+- name: Docker config json
+  copy:
+    src: "{{ role_path }}/files/daemon.json"
+    dest: /etc/docker/daemon.json
+    force: True
+    owner: vagrant
+    group: docker
+    mode: '0774'
+
+- name: docker restart
+  service:
+    name: docker
+    state: restarted
 
 - name: Add vagrant user to docker group
   user:

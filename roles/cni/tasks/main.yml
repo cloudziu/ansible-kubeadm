@@ -1,0 +1,15 @@
+---
+# This role will add CNI to the cluster
+
+- name: Copy the cni on master
+  copy:
+    src: "{{ role_path }}/files/calico.yaml"
+    dest: /home/vagrant/calico.yaml
+    mode: 0664
+
+- name: Create a Service object by reading the definition from a file
+  become: true
+  become_user: vagrant
+  k8s:
+    state: present
+    src: /home/vagrant/calico.yaml

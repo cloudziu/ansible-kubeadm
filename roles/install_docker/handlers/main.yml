@@ -1,6 +1,7 @@
 ---
 # Handlers for docker role
-- name: docker status
+- name: docker start
   service: 
     name: docker
     state: started
+
