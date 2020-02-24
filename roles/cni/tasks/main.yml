@@ -7,9 +7,7 @@
     dest: /home/vagrant/calico.yaml
     mode: 0664
 
-- name: Create a Service object by reading the definition from a file
-  become: true
+- name: Deploy calio
+  become: True
   become_user: vagrant
-  k8s:
-    state: present
-    src: /home/vagrant/calico.yaml
+  shell: kubectl apply -f /home/vagrant/calico.yaml

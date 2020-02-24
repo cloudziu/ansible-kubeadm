@@ -7,7 +7,7 @@ Vagrant.configure("2") do |config|
       v.cpus = 2
   end
     
-  config.vm.define "node-master" do |master|
+  config.vm.define "master-1" do |master|
       master.vm.box = "ubuntu/xenial64"
       master.vm.network "private_network", ip: "10.1.0.10"
       master.vm.hostname = "ubuntu-master"

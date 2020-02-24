@@ -2,5 +2,6 @@
 # This role will join nodes to cluster
 
 - name: Join nodes to the cluster
-  shell: "{{ join_command }}"
+  shell: "{{ hostvars['master-1']['join_command']['stdout'] }}"
+  -namespaces
   

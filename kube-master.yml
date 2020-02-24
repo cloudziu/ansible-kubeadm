@@ -2,7 +2,23 @@
 - hosts: kube
   gather_facts: true
   become: true
+  become_user: root
   roles:
     - dependencies
     - install_docker
+    - install_kube
+  
+- hosts: master-1
+  gather_facts: false
+  become: true
+  become_user: root
+  roles:
+    - init_kube
+    - cni
 
+- hosts: workers
+  gather_facts: false
+  become: true
+  become_user: root
+  roles:
+    - add_node
